@@ -40,4 +40,11 @@ async function setUpDatabase(req, res, next) {
   next();
 }
 
+export function getModels() {
+  const { User, Product, Comment, Category, ProductCategory, UserProduct } =
+    dbConnection.models;
+
+  return { User, Product, Comment, Category, ProductCategory, UserProduct };
+}
+
 export default setUpDatabase;
