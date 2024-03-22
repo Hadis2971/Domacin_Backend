@@ -38,7 +38,7 @@ router.post("/login", async (req, res, next) => {
 
   const { username, password } = req.body;
 
-  if (!username | !password) {
+  if (!username || !password) {
     res
       .status(400)
       .json({ errorMsg: "Username and Password are both mandatory!!!" });
@@ -54,14 +54,74 @@ router.post("/login", async (req, res, next) => {
         foundUser.password
       );
 
-      const token = jsonwebtoken.sign({ username, password }, "secret");
+      const token = jsonwebtoken.sign(
+        { id: foundUser.id, username, password },
+        "secret"
+      );
 
       if (correctPassword) {
         res.json(token);
       } else {
-        res.status(400).json({ errorMsg: "Wrond Credentials!!!" });
+        res.status(400).json({ errorMsg: "Wrong Credentials!!!" });
       }
     }
+  }
+});
+
+router.get("/products", async (req, res) => {
+  const { Product, ProductImage } = getModels();
+
+  const products = await Product.findAll();
+
+  const response = await Promise.all(
+    products.map(async (product) => {
+      const images = await ProductImage.findAll({
+        where: { ProductId: product.id },
+      });
+
+      const imageUrls = images.map(({ url }) => url);
+
+      return { ...product.toJSON(), images: imageUrls };
+    })
+  );
+
+  res.json(response);
+});
+
+const OrderStatus = {
+  Pending: 1,
+  Fulfilled: 2,
+};
+
+router.post("/order", async (req, res) => {
+  //{ userId: 1, order: [ { id: 1, quantity: 1 } ] }
+  const { userId, address, email, order } = req.body;
+
+  try {
+    const { Order, User, OrderProduct } = getModels();
+    const newOrder = await Order.create({
+      status: OrderStatus.Pending,
+      address,
+      email,
+    });
+
+    const user = await User.findByPk(userId);
+
+    newOrder.setUser(user);
+
+    await Promise.all(
+      order.map((order) => {
+        OrderProduct.create({
+          OrderId: newOrder.id,
+          ProductId: order.id,
+          quantity: order.quantity,
+        });
+      })
+    );
+
+    res.status(200);
+  } catch (error) {
+    res.status(400).send(error);
   }
 });
 

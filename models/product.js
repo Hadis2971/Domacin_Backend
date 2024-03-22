@@ -15,9 +15,17 @@ function setUpProductModel(sequelize) {
         allowNull: false,
       },
 
-      quantity: {
+      stock: {
         type: DataTypes.INTEGER,
         allowNull: false,
+      },
+
+      shortDescription: {
+        type: DataTypes.TEXT,
+      },
+
+      longDescription: {
+        type: DataTypes.TEXT,
       },
     },
     { sequelize, modelName: "Product" }

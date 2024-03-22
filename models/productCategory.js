@@ -5,9 +5,9 @@ function setUpProductCategoryModel(sequelize) {
 
   ProductCategory.init({}, { sequelize, modelName: "ProductCategory" });
 
-  sequelize.models.Category.belongsToMany(sequelize.models.Product, {
-    through: ProductCategory,
-  });
+  // sequelize.models.Category.belongsToMany(sequelize.models.Product, {
+  //   through: ProductCategory,
+  // });
 }
 
 export default setUpProductCategoryModel;

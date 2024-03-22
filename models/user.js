@@ -14,9 +14,16 @@ function setUpUserModel(sequelize) {
         type: DataTypes.STRING,
         allowNull: false,
       },
+
+      address: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
     },
     { sequelize, modelName: "User" }
   );
+
+  //sequelize.models.User.hasMany(sequelize.models.Order);
 }
 
 export default setUpUserModel;

@@ -1,11 +1,16 @@
 import { Sequelize } from "sequelize";
 import setUpUserModel from "./user";
 import setUpProductModel from "./product";
+import setUpProductImageModel from "./productImage";
+import setUpOrderModel from "./order";
 import setUpCategoryModel from "./category";
 import setUpCommentModel from "./comment";
 
 import setUpProductCategoryModel from "./productCategory";
-import setUpUserProductModel from "./userProduct";
+import setUpOrderProductModel from "./orderProduct";
+
+import seedProducts from "./productsSeed";
+import seedProductImages from "./productImageSeed";
 
 const dbConnection = new Sequelize("Domacin", "userdomacin", "Password1!", {
   host: "localhost",
@@ -22,15 +27,37 @@ async function connectToDatabase() {
 }
 
 async function syncModels() {
+  setUpOrderModel(dbConnection);
   setUpUserModel(dbConnection);
   setUpProductModel(dbConnection);
+  setUpProductImageModel(dbConnection);
   setUpCommentModel(dbConnection);
   setUpCategoryModel(dbConnection);
 
   setUpProductCategoryModel(dbConnection);
-  setUpUserProductModel(dbConnection);
+  setUpOrderProductModel(dbConnection);
+
+  dbConnection.models.User.hasMany(dbConnection.models.Order);
+  dbConnection.models.Order.belongsTo(dbConnection.models.User);
+  dbConnection.models.ProductImage.belongsTo(dbConnection.models.Product);
+  //dbConnection.models.Product.hasMany(dbConnection.models.ProductImage);
+
+  dbConnection.models.Order.belongsToMany(dbConnection.models.Product, {
+    through: "OrderProduct",
+  });
+
+  // dbConnection.models.Product.belongsToMany(dbConnection.models.Order, {
+  //   through: "OrderProduct",
+  // });
+
+  dbConnection.models.Category.belongsToMany(dbConnection.models.Product, {
+    through: "ProductCategory",
+  });
 
   await dbConnection.sync({ alter: true });
+
+  //await seedProducts(dbConnection);
+  //await seedProductImages(dbConnection);
 }
 
 async function setUpDatabase(req, res, next) {
@@ -41,10 +68,27 @@ async function setUpDatabase(req, res, next) {
 }
 
 export function getModels() {
-  const { User, Product, Comment, Category, ProductCategory, UserProduct } =
-    dbConnection.models;
+  const {
+    User,
+    Product,
+    ProductImage,
+    Order,
+    Comment,
+    Category,
+    ProductCategory,
+    OrderProduct,
+  } = dbConnection.models;
 
-  return { User, Product, Comment, Category, ProductCategory, UserProduct };
+  return {
+    User,
+    Product,
+    ProductImage,
+    Order,
+    Comment,
+    Category,
+    ProductCategory,
+    OrderProduct,
+  };
 }
 
 export default setUpDatabase;
