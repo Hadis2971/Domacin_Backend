@@ -24,6 +24,7 @@ const data = [
       semper est a mattis. Duis eleifend sollicitudin ex, ac euismod est.`,
     name: "Cookies",
     stock: 3,
+    skuCode: "SKU-Product 1 9qOIzzJd7s6CQddVZTggSB1ZedFORS",
     price: 17.99,
   },
   {
@@ -49,6 +50,7 @@ const data = [
       semper est a mattis. Duis eleifend sollicitudin ex, ac euismod est.`,
     name: "Cookies 2",
     stock: 2,
+    skuCode: "SKU-Product 2 mEs6xiKozHHBBxRPW6zcmLPsQSodxv",
     price: 1.99,
   },
   {
@@ -76,6 +78,7 @@ const data = [
       semper est a mattis. Duis eleifend sollicitudin ex, ac euismod est.`,
     name: "Cookies",
     stock: 13,
+    skuCode: "SKU-Product 3 XKfybMEUbwmg9k80SCSSxZJ9jo0C3GJ9XxfqGpej",
     price: 7.99,
   },
 ];

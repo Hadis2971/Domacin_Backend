@@ -5,8 +5,8 @@ function setUpCategoryModel(sequelize) {
 
   Category.init(
     {
-      name: {
-        type: DataTypes.STRING,
+      type: {
+        type: DataTypes.INTEGER,
         allowNull: false,
       },
     },

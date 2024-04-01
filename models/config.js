@@ -9,8 +9,10 @@ import setUpCommentModel from "./comment";
 import setUpProductCategoryModel from "./productCategory";
 import setUpOrderProductModel from "./orderProduct";
 
+import seedCategories from "./categorySeed";
 import seedProducts from "./productsSeed";
 import seedProductImages from "./productImageSeed";
+import seedProductCategories from "./productCategoriesSeed";
 
 const dbConnection = new Sequelize("Domacin", "userdomacin", "Password1!", {
   host: "localhost",
@@ -29,10 +31,10 @@ async function connectToDatabase() {
 async function syncModels() {
   setUpOrderModel(dbConnection);
   setUpUserModel(dbConnection);
+  setUpCategoryModel(dbConnection);
   setUpProductModel(dbConnection);
   setUpProductImageModel(dbConnection);
   setUpCommentModel(dbConnection);
-  setUpCategoryModel(dbConnection);
 
   setUpProductCategoryModel(dbConnection);
   setUpOrderProductModel(dbConnection);
@@ -54,17 +56,21 @@ async function syncModels() {
     through: "ProductCategory",
   });
 
+  dbConnection.models.Product.belongsToMany(dbConnection.models.Category, {
+    through: "ProductCategory",
+  });
+
   await dbConnection.sync({ alter: true });
 
-  //await seedProducts(dbConnection);
-  //await seedProductImages(dbConnection);
+  // await seedProducts(dbConnection);
+  // await seedProductImages(dbConnection);
+  // await seedCategories(dbConnection);
+  // await seedProductCategories(dbConnection);
 }
 
-async function setUpDatabase(req, res, next) {
+async function setUpDatabase() {
   await connectToDatabase();
   await syncModels();
-
-  next();
 }
 
 export function getModels() {

@@ -1,8 +1,11 @@
 import express from "express";
 import bodyParser from "body-parser";
 
-import router from "./router";
+import authRouter from "./router/auth";
+import productRouter from "./router/product";
 import setUpDatabase from "./models/config";
+
+setUpDatabase();
 
 const app = express();
 
@@ -32,7 +35,7 @@ app.use(function (req, res, next) {
 });
 
 app.use(bodyParser.json());
-app.use(setUpDatabase);
-app.use(router);
+app.use("/auth", authRouter);
+app.use("/products", productRouter);
 
 app.listen(5000, () => console.log("Running"));

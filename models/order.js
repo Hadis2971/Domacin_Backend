@@ -10,6 +10,16 @@ function setUpOrderModel(sequelize) {
         allowNull: false,
       },
 
+      firstName: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+
+      lastName: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+
       address: {
         type: DataTypes.STRING,
         allowNull: false,

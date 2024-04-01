@@ -20,6 +20,11 @@ function setUpProductModel(sequelize) {
         allowNull: false,
       },
 
+      skuCode: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+
       shortDescription: {
         type: DataTypes.TEXT,
       },

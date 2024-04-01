@@ -10,12 +10,22 @@ function setUpUserModel(sequelize) {
         allowNull: false,
       },
 
-      password: {
+      firstName: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+
+      lastName: {
         type: DataTypes.STRING,
         allowNull: false,
       },
 
       address: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+
+      password: {
         type: DataTypes.STRING,
         allowNull: false,
       },
