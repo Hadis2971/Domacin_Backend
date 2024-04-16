@@ -4,7 +4,7 @@ import setUpProductModel from "./product";
 import setUpProductImageModel from "./productImage";
 import setUpOrderModel from "./order";
 import setUpCategoryModel from "./category";
-import setUpCommentModel from "./comment";
+import setUpRecensionModel from "./recension";
 
 import setUpProductCategoryModel from "./productCategory";
 import setUpOrderProductModel from "./orderProduct";
@@ -34,7 +34,7 @@ async function syncModels() {
   setUpCategoryModel(dbConnection);
   setUpProductModel(dbConnection);
   setUpProductImageModel(dbConnection);
-  setUpCommentModel(dbConnection);
+  setUpRecensionModel(dbConnection);
 
   setUpProductCategoryModel(dbConnection);
   setUpOrderProductModel(dbConnection);
@@ -60,6 +60,10 @@ async function syncModels() {
     through: "ProductCategory",
   });
 
+  dbConnection.models.Recension.belongsTo(dbConnection.models.User);
+
+  dbConnection.models.Recension.belongsTo(dbConnection.models.Product);
+
   await dbConnection.sync({ alter: true });
 
   // await seedProducts(dbConnection);
@@ -79,7 +83,7 @@ export function getModels() {
     Product,
     ProductImage,
     Order,
-    Comment,
+    Recension,
     Category,
     ProductCategory,
     OrderProduct,
@@ -90,7 +94,7 @@ export function getModels() {
     Product,
     ProductImage,
     Order,
-    Comment,
+    Recension,
     Category,
     ProductCategory,
     OrderProduct,

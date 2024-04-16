@@ -31,9 +31,35 @@ export const Categories = {
 router.post("/order", async (req, res) => {
   //{ userId: 1, order: [ { id: 1, quantity: 1 } ] }
   const { userId, firstName, lastName, address, email, order } = req.body;
+  const { Order, User, Product, OrderProduct } = getModels();
+
+  if (!order.length) {
+    res.status(400).json({ message: "Narudzba ne moze biti prazna!!!" });
+
+    return;
+  }
 
   try {
-    const { Order, User, OrderProduct } = getModels();
+    await Promise.all(
+      order.map(async (order) => {
+        const product = await Product.findByPk(order.id);
+
+        if (product.stock < order.quantity)
+          Promise.reject(
+            "Proizvod " +
+              product.name +
+              " nema na zalihama dovoljno ova narudzba nije prihvacena. Raspolozivost: " +
+              product.stock
+          );
+      })
+    );
+  } catch (error) {
+    console.log(error);
+    res.status(400).json({ message: error.reason });
+    return;
+  }
+
+  try {
     const newOrder = await Order.create({
       status: OrderStatus.Pending,
       firstName,
@@ -49,23 +75,63 @@ router.post("/order", async (req, res) => {
     }
 
     await Promise.all(
-      order.map((order) => {
+      order.map(async (order) => {
         OrderProduct.create({
           OrderId: newOrder.id,
           ProductId: order.id,
           quantity: order.quantity,
         });
+
+        const product = await Product.findByPk(order.id);
+        if (product) {
+          product.stock = product.stock - order.quantity;
+
+          console.log("PRODUCT", product);
+
+          await product.save();
+        }
       })
     );
 
-    res.status(200);
+    res.status(200).send();
   } catch (error) {
     res.status(400).send(error);
   }
 });
 
+router.post("/recension", async (req, res) => {
+  const { title, description, rating, email, userId, productId } = req.body;
+
+  try {
+    const { Recension, User, Product } = getModels();
+
+    const newRecension = await Recension.create({
+      title,
+      description,
+      rating,
+      email,
+    });
+
+    if (userId) {
+      const foundUser = await User.findByPk(userId);
+
+      if (foundUser) newRecension.setUser(foundUser);
+    }
+
+    if (productId) {
+      const founProduct = await Product.findByPk(productId);
+
+      if (founProduct) newRecension.setProduct(founProduct);
+    }
+
+    res.status(200).send();
+  } catch (error) {
+    res.status(500).json(error);
+  }
+});
+
 router.get("/", async (req, res) => {
-  const { Product, ProductImage, ProductCategory } = getModels();
+  const { Product, ProductImage, ProductCategory, Recension } = getModels();
 
   try {
     const products = await Product.findAll();
@@ -80,14 +146,27 @@ router.get("/", async (req, res) => {
           where: { ProductId: product.id },
         });
 
+        const recensions = await Recension.findAll({
+          where: { ProductId: product.id },
+        });
+
         const categoryIds = categories.map(({ CategoryId }) => CategoryId);
 
         const imageUrls = images.map(({ url }) => url);
+
+        const recensionsFormated = recensions?.map((recension) => ({
+          id: recension.id,
+          title: recension.title,
+          description: recension.description,
+          rating: recension.rating,
+          email: recension.email,
+        }));
 
         return {
           ...product.toJSON(),
           images: imageUrls,
           categories: categoryIds,
+          recensions: recensionsFormated,
         };
       })
     );
