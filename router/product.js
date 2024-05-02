@@ -100,7 +100,8 @@ router.post("/order", async (req, res) => {
 });
 
 router.post("/recension", async (req, res) => {
-  const { title, description, rating, email, userId, productId } = req.body;
+  const { title, description, rating, firstName, lastName, userId, productId } =
+    req.body;
 
   try {
     const { Recension, User, Product } = getModels();
@@ -109,7 +110,8 @@ router.post("/recension", async (req, res) => {
       title,
       description,
       rating,
-      email,
+      firstName,
+      lastName,
     });
 
     if (userId) {
@@ -159,7 +161,8 @@ router.get("/", async (req, res) => {
           title: recension.title,
           description: recension.description,
           rating: recension.rating,
-          email: recension.email,
+          firstName: recension.firstName,
+          lastName: recension.lastName,
         }));
 
         return {

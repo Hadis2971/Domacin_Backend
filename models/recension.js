@@ -20,7 +20,12 @@ function setUpRecensionModel(sequelize) {
         allowNull: false,
       },
 
-      email: {
+      firstName: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+
+      lastName: {
         type: DataTypes.STRING,
         allowNull: false,
       },
