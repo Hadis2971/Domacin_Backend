@@ -5,14 +5,21 @@ import setUpProductImageModel from "./productImage";
 import setUpOrderModel from "./order";
 import setUpCategoryModel from "./category";
 import setUpRecensionModel from "./recension";
+import setUpArticleModel from "./article";
 
 import setUpProductCategoryModel from "./productCategory";
 import setUpOrderProductModel from "./orderProduct";
+import setUpArticleCommentModel from "./articleComment";
+import setUpArticleCategoryModel from "./articleCategory";
+import setUpArticleImageModel from "./articleImage";
 
 import seedCategories from "./categorySeed";
 import seedProducts from "./productsSeed";
+import seedAricles from "./articlesSeed";
 import seedProductImages from "./productImageSeed";
 import seedProductCategories from "./productCategoriesSeed";
+import seedArticleCategories from "./articleCategoriesSeed";
+import seedArticleImages from "./articleImagesSeed";
 
 const dbConnection = new Sequelize("Domacin", "userdomacin", "Password1!", {
   host: "localhost",
@@ -33,11 +40,15 @@ async function syncModels() {
   setUpUserModel(dbConnection);
   setUpCategoryModel(dbConnection);
   setUpProductModel(dbConnection);
+  setUpArticleModel(dbConnection);
   setUpProductImageModel(dbConnection);
   setUpRecensionModel(dbConnection);
 
   setUpProductCategoryModel(dbConnection);
   setUpOrderProductModel(dbConnection);
+  setUpArticleCommentModel(dbConnection);
+  setUpArticleCategoryModel(dbConnection);
+  setUpArticleImageModel(dbConnection);
 
   dbConnection.models.User.hasMany(dbConnection.models.Order);
   dbConnection.models.Order.belongsTo(dbConnection.models.User);
@@ -64,12 +75,31 @@ async function syncModels() {
 
   dbConnection.models.Recension.belongsTo(dbConnection.models.Product);
 
+  dbConnection.models.Article.hasMany(dbConnection.models.ArticleComment);
+
+  dbConnection.models.ArticleComment.belongsTo(dbConnection.models.Article);
+
+  dbConnection.models.ArticleImage.belongsTo(dbConnection.models.Article);
+
+  dbConnection.models.ArticleComment.belongsTo(dbConnection.models.User);
+
+  dbConnection.models.Category.belongsToMany(dbConnection.models.Article, {
+    through: "ArticleCategory",
+  });
+
+  dbConnection.models.Article.belongsToMany(dbConnection.models.Category, {
+    through: "ArticleCategory",
+  });
+
   await dbConnection.sync({ alter: true });
 
   // await seedProducts(dbConnection);
   // await seedProductImages(dbConnection);
   // await seedCategories(dbConnection);
   // await seedProductCategories(dbConnection);
+  // await seedAricles(dbConnection);
+  // await seedArticleCategories(dbConnection);
+  // await seedArticleImages(dbConnection);
 }
 
 async function setUpDatabase() {
@@ -84,6 +114,10 @@ export function getModels() {
     ProductImage,
     Order,
     Recension,
+    Article,
+    ArticleComment,
+    ArticleCategory,
+    ArticleImage,
     Category,
     ProductCategory,
     OrderProduct,
@@ -95,6 +129,10 @@ export function getModels() {
     ProductImage,
     Order,
     Recension,
+    Article,
+    ArticleComment,
+    ArticleCategory,
+    ArticleImage,
     Category,
     ProductCategory,
     OrderProduct,

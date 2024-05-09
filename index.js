@@ -3,6 +3,7 @@ import bodyParser from "body-parser";
 
 import authRouter from "./router/auth";
 import productRouter from "./router/product";
+import articleRouter from "./router/article";
 import setUpDatabase from "./models/config";
 
 setUpDatabase();
@@ -37,5 +38,6 @@ app.use(function (req, res, next) {
 app.use(bodyParser.json());
 app.use("/auth", authRouter);
 app.use("/products", productRouter);
+app.use("/articles", articleRouter);
 
 app.listen(5000, () => console.log("Running"));
