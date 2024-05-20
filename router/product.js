@@ -1,4 +1,5 @@
 import express from "express";
+import { Op } from "sequelize";
 
 import { getModels } from "../models/config";
 
@@ -141,7 +142,75 @@ router.post("/recension", async (req, res) => {
   }
 });
 
+router.get("/:category", async (req, res) => {
+  const { Product, ProductImage, ProductCategory, Recension } = getModels();
+
+  try {
+    const { category } = req.params;
+
+    console.log(
+      "categorycategorycategorycategorycategorycategorycategorycategorycategorycategorycategorycategorycategorycategorycategorycategorycategory",
+      category
+    );
+
+    const productCategories = await ProductCategory.findAll({
+      where: { CategoryId: category },
+    });
+
+    const productIdsList = productCategories.map(({ ProductId }) => ({
+      id: ProductId,
+    }));
+
+    const products = await Product.findAll({
+      where: { [Op.or]: productIdsList },
+    });
+
+    const response = await Promise.all(
+      products.map(async (product) => {
+        const images = await ProductImage.findAll({
+          where: { ProductId: product.id },
+        });
+
+        const recensions = await Recension.findAll({
+          where: { ProductId: product.id },
+        });
+
+        const categoryIds = productCategories.map(
+          ({ CategoryId }) => CategoryId
+        );
+
+        const imageUrls = images.map(({ url }) => url);
+
+        const recensionsFormated = recensions?.map((recension) => ({
+          id: recension.id,
+          title: recension.title,
+          description: recension.description,
+          rating: recension.rating,
+          firstName: recension.firstName,
+          lastName: recension.lastName,
+          verified: recension.verified,
+        }));
+
+        return {
+          ...product.toJSON(),
+          images: imageUrls,
+          categories: categoryIds,
+          recensions: recensionsFormated,
+        };
+      })
+    );
+
+    res.status(200).json(response);
+  } catch (error) {
+    res.status(500).json(error);
+  }
+});
+
 router.get("/", async (req, res) => {
+  console.log(
+    "WHATWHATWHATWHATWHATWHATWHATWHATWHATWHATWHATWHATWHATWHATWHATWHATWHATWHAT"
+  );
+
   const { Product, ProductImage, ProductCategory, Recension } = getModels();
 
   try {
