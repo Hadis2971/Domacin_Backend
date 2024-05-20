@@ -73,6 +73,7 @@ router.post("/login", async (req, res, next) => {
             lastName: foundUser.lastName,
             address: foundUser.address,
             email: foundUser.email,
+            verified: foundUser.verified,
           },
           "secret"
         );

@@ -23,6 +23,34 @@ export const Categories = {
   Catgory16: 16,
 };
 
+router.post("/comment", async (req, res) => {
+  const { Article, ArticleComment, User } = getModels();
+
+  try {
+    const { articleId, userId, text, firstName, lastName } = req.body;
+
+    const comment = await ArticleComment.create({ text, firstName, lastName });
+
+    const article = await Article.findByPk(articleId);
+
+    await comment.setArticle(article);
+
+    if (userId) {
+      const user = await User.findByPk(userId);
+
+      await comment.setUser(user);
+
+      comment.verified = true;
+
+      await comment.save();
+    }
+
+    res.status(200).json();
+  } catch (error) {
+    res.status(500).json(error);
+  }
+});
+
 router.get("/", async (req, res) => {
   const { Article, ArticleCategory, ArticleComment, ArticleImage } =
     getModels();
@@ -52,6 +80,7 @@ router.get("/", async (req, res) => {
           firstName: comment.firstName,
           lastName: comment.lastName,
           timestamp: comment.updatedAt,
+          verified: comment.verified,
         }));
 
         const imagesURLS = images?.map(({ url }) => url) || [];
@@ -68,30 +97,6 @@ router.get("/", async (req, res) => {
     res.status(200).json(response);
   } catch (error) {
     console.log("Error getting Articles", error);
-    res.status(500).json(error);
-  }
-});
-
-router.post("/comment", async (req, res) => {
-  const { Article, ArticleComment, User } = getModels();
-
-  try {
-    const { articleId, userId, text, firstName, lastName } = req.body;
-
-    const comment = await ArticleComment.create({ text, firstName, lastName });
-
-    const article = await Article.findByPk(articleId);
-
-    await comment.setArticle(article);
-
-    if (userId) {
-      const user = await User.findByPk(userId);
-
-      await comment.setUser(user);
-    }
-
-    res.status(200).json();
-  } catch (error) {
     res.status(500).json(error);
   }
 });

@@ -29,6 +29,11 @@ function setUpRecensionModel(sequelize) {
         type: DataTypes.STRING,
         allowNull: false,
       },
+
+      verified: {
+        type: DataTypes.BOOLEAN,
+        allowNull: true,
+      },
     },
 
     { sequelize, modelName: "Recension" }

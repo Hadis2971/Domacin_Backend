@@ -71,6 +71,10 @@ router.post("/order", async (req, res) => {
     if (userId) {
       const user = await User.findByPk(userId);
 
+      user.verified = true;
+
+      await user.save();
+
       newOrder.setUser(user);
     }
 
@@ -117,7 +121,12 @@ router.post("/recension", async (req, res) => {
     if (userId) {
       const foundUser = await User.findByPk(userId);
 
-      if (foundUser) newRecension.setUser(foundUser);
+      if (foundUser) {
+        await newRecension.setUser(foundUser);
+
+        newRecension.verified = true;
+        await newRecension.save();
+      }
     }
 
     if (productId) {
@@ -163,6 +172,7 @@ router.get("/", async (req, res) => {
           rating: recension.rating,
           firstName: recension.firstName,
           lastName: recension.lastName,
+          verified: recension.verified,
         }));
 
         return {

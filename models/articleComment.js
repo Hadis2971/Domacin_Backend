@@ -17,6 +17,10 @@ function setUpArticleCommentModel(sequelize) {
         type: DataTypes.STRING,
         allowNull: false,
       },
+      verified: {
+        type: DataTypes.BOOLEAN,
+        allowNull: true,
+      },
     },
     { sequelize, modelName: "ArticleComment" }
   );
