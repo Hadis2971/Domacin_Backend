@@ -1,4 +1,5 @@
 import express from "express";
+import { Op } from "sequelize";
 
 import { getModels } from "../models/config";
 
@@ -46,6 +47,69 @@ router.post("/comment", async (req, res) => {
     }
 
     res.status(200).json();
+  } catch (error) {
+    res.status(500).json(error);
+  }
+});
+
+router.get("/:category", async (req, res) => {
+  const { Article, ArticleCategory, ArticleComment, ArticleImage } =
+    getModels();
+
+  try {
+    const { category } = req.params;
+
+    const articleCategories = await ArticleCategory.findAll({
+      where: { CategoryId: category },
+    });
+
+    //console.log(articleCategories);
+
+    const articleIdsList = articleCategories.map(({ ArticleId }) => ({
+      id: ArticleId,
+    }));
+
+    console.log(articleIdsList);
+
+    const articles = await Article.findAll({
+      where: { [Op.or]: articleIdsList },
+    });
+
+    const response = await Promise.all(
+      articles.map(async (article) => {
+        const comments = await ArticleComment.findAll({
+          where: { ArticleId: article.id },
+        });
+
+        const images = await ArticleImage.findAll({
+          where: { ArticleId: article.id },
+        });
+
+        const categoryIds = articleCategories.map(
+          ({ CategoryId }) => CategoryId
+        );
+
+        const commentsFormated = comments?.map((comment) => ({
+          id: comment.id,
+          text: comment.text,
+          firstName: comment.firstName,
+          lastName: comment.lastName,
+          timestamp: comment.updatedAt,
+          verified: comment.verified,
+        }));
+
+        const imagesURLS = images?.map(({ url }) => url) || [];
+
+        return {
+          ...article.toJSON(),
+          categories: categoryIds,
+          comments: commentsFormated,
+          images: imagesURLS,
+        };
+      })
+    );
+
+    res.status(200).json(response);
   } catch (error) {
     res.status(500).json(error);
   }

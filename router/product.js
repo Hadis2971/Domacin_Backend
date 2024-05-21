@@ -148,11 +148,6 @@ router.get("/:category", async (req, res) => {
   try {
     const { category } = req.params;
 
-    console.log(
-      "categorycategorycategorycategorycategorycategorycategorycategorycategorycategorycategorycategorycategorycategorycategorycategorycategory",
-      category
-    );
-
     const productCategories = await ProductCategory.findAll({
       where: { CategoryId: category },
     });
@@ -207,10 +202,6 @@ router.get("/:category", async (req, res) => {
 });
 
 router.get("/", async (req, res) => {
-  console.log(
-    "WHATWHATWHATWHATWHATWHATWHATWHATWHATWHATWHATWHATWHATWHATWHATWHATWHATWHAT"
-  );
-
   const { Product, ProductImage, ProductCategory, Recension } = getModels();
 
   try {
