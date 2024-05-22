@@ -7,8 +7,6 @@ import productRouter from "./router/product";
 import articleRouter from "./router/article";
 import setUpDatabase from "./models/config";
 
-setUpDatabase();
-
 const app = express();
 const wss = new WebSocketServer({ port: 8080 });
 
@@ -37,18 +35,15 @@ app.use(function (req, res, next) {
   next();
 });
 
-wss.on("connection", function connection(ws) {
-  ws.on("error", console.error);
-
-  console.log(
-    "CONNECTEDCONNECTEDCONNECTEDCONNECTEDCONNECTEDCONNECTEDCONNECTEDCONNECTEDCONNECTEDCONNECTEDCONNECTEDCONNECTEDCONNECTEDCONNECTED"
-  );
-});
-
 app.use(bodyParser.json());
 app.use("/auth", authRouter);
 app.use("/products", productRouter);
 app.use("/articles", articleRouter);
+
+setUpDatabase();
+wss.on("connection", function connection(ws) {
+  ws.on("error", console.error);
+});
 
 app.listen(5000, () => console.log("Running"));
 
