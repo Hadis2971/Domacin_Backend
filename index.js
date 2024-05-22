@@ -1,5 +1,6 @@
 import express from "express";
 import bodyParser from "body-parser";
+import { WebSocketServer } from "ws";
 
 import authRouter from "./router/auth";
 import productRouter from "./router/product";
@@ -9,6 +10,7 @@ import setUpDatabase from "./models/config";
 setUpDatabase();
 
 const app = express();
+const wss = new WebSocketServer({ port: 8080 });
 
 app.use(function (req, res, next) {
   // Website you wish to allow to connect
@@ -35,9 +37,19 @@ app.use(function (req, res, next) {
   next();
 });
 
+wss.on("connection", function connection(ws) {
+  ws.on("error", console.error);
+
+  console.log(
+    "CONNECTEDCONNECTEDCONNECTEDCONNECTEDCONNECTEDCONNECTEDCONNECTEDCONNECTEDCONNECTEDCONNECTEDCONNECTEDCONNECTEDCONNECTEDCONNECTED"
+  );
+});
+
 app.use(bodyParser.json());
 app.use("/auth", authRouter);
 app.use("/products", productRouter);
 app.use("/articles", articleRouter);
 
 app.listen(5000, () => console.log("Running"));
+
+export default wss;

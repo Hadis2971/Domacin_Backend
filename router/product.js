@@ -1,6 +1,7 @@
 import express from "express";
 import { Op } from "sequelize";
 
+import wss from "..";
 import { getModels } from "../models/config";
 
 const router = express.Router();
@@ -33,6 +34,8 @@ router.post("/order", async (req, res) => {
   //{ userId: 1, order: [ { id: 1, quantity: 1 } ] }
   const { userId, firstName, lastName, address, email, order } = req.body;
   const { Order, User, Product, OrderProduct } = getModels();
+
+  const responseOrder = [];
 
   if (!order.length) {
     res.status(400).json({ message: "Narudzba ne moze biti prazna!!!" });
@@ -89,14 +92,22 @@ router.post("/order", async (req, res) => {
 
         const product = await Product.findByPk(order.id);
         if (product) {
+          responseOrder.push({
+            id: product.id,
+            productName: product.name,
+            initialStock: product.stock,
+            currentStock: product.stock - order.quantity,
+          });
           product.stock = product.stock - order.quantity;
-
-          console.log("PRODUCT", product);
 
           await product.save();
         }
       })
     );
+
+    wss.clients.forEach((client) => {
+      client.send(JSON.stringify(responseOrder));
+    });
 
     res.status(200).send();
   } catch (error) {
