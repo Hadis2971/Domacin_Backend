@@ -9,6 +9,24 @@ function setUpOrderProductModel(sequelize) {
         type: DataTypes.INTEGER,
         allowNull: false,
       },
+      price: {
+        type: DataTypes.FLOAT,
+        allowNull: false,
+      },
+      attribute: {
+        type: DataTypes.INTEGER,
+      },
+      variation: {
+        type: DataTypes.INTEGER,
+      },
+      productID: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+      },
+      orderID: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+      },
     },
     { sequelize, modelName: "OrderProduct" }
   );

@@ -9,12 +9,16 @@ import setUpArticleModel from "./article";
 
 import setUpProductCategoryModel from "./productCategory";
 import setUpOrderProductModel from "./orderProduct";
+import setUpProductAttributeModel from "./productAttribute";
+import setUpProductAttributeVariationModel from "./productAttributeVariation";
 import setUpArticleCommentModel from "./articleComment";
 import setUpArticleCategoryModel from "./articleCategory";
 import setUpArticleImageModel from "./articleImage";
 
 import seedCategories from "./categorySeed";
 import seedProducts from "./productsSeed";
+import seedProductAttribute from "./productAttributeSeed";
+import seedProductAttributeVariation from "./productAttributeVariationSeed";
 import seedAricles from "./articlesSeed";
 import seedProductImages from "./productImageSeed";
 import seedProductCategories from "./productCategoriesSeed";
@@ -39,11 +43,12 @@ async function syncModels() {
   setUpOrderModel(dbConnection);
   setUpUserModel(dbConnection);
   setUpCategoryModel(dbConnection);
+  setUpProductAttributeModel(dbConnection);
+  setUpProductAttributeVariationModel(dbConnection);
   setUpProductModel(dbConnection);
   setUpArticleModel(dbConnection);
   setUpProductImageModel(dbConnection);
   setUpRecensionModel(dbConnection);
-
   setUpProductCategoryModel(dbConnection);
   setUpOrderProductModel(dbConnection);
   setUpArticleCommentModel(dbConnection);
@@ -53,11 +58,10 @@ async function syncModels() {
   dbConnection.models.User.hasMany(dbConnection.models.Order);
   dbConnection.models.Order.belongsTo(dbConnection.models.User);
   dbConnection.models.ProductImage.belongsTo(dbConnection.models.Product);
-  //dbConnection.models.Product.hasMany(dbConnection.models.ProductImage);
 
-  dbConnection.models.Order.belongsToMany(dbConnection.models.Product, {
-    through: "OrderProduct",
-  });
+  // dbConnection.models.Order.belongsToMany(dbConnection.models.Product, {
+  //   through: "OrderProduct",
+  // });
 
   // dbConnection.models.Product.belongsToMany(dbConnection.models.Order, {
   //   through: "OrderProduct",
@@ -70,6 +74,12 @@ async function syncModels() {
   dbConnection.models.Product.belongsToMany(dbConnection.models.Category, {
     through: "ProductCategory",
   });
+
+  dbConnection.models.ProductAttribute.hasMany(dbConnection.models.Product);
+
+  dbConnection.models.ProductAttribute.hasMany(
+    dbConnection.models.ProductAttributeVariation
+  );
 
   dbConnection.models.Recension.belongsTo(dbConnection.models.User);
 
@@ -93,6 +103,8 @@ async function syncModels() {
 
   await dbConnection.sync({ alter: true });
 
+  // await seedProductAttribute(dbConnection);
+  // await seedProductAttributeVariation(dbConnection);
   // await seedProducts(dbConnection);
   // await seedProductImages(dbConnection);
   // await seedCategories(dbConnection);
@@ -111,6 +123,8 @@ export function getModels() {
   const {
     User,
     Product,
+    ProductAttribute,
+    ProductAttributeVariation,
     ProductImage,
     Order,
     Recension,
@@ -126,6 +140,8 @@ export function getModels() {
   return {
     User,
     Product,
+    ProductAttribute,
+    ProductAttributeVariation,
     ProductImage,
     Order,
     Recension,

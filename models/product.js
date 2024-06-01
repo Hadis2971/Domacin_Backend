@@ -12,12 +12,10 @@ function setUpProductModel(sequelize) {
 
       price: {
         type: DataTypes.FLOAT,
-        allowNull: false,
       },
 
       stock: {
         type: DataTypes.INTEGER,
-        allowNull: false,
       },
 
       skuCode: {

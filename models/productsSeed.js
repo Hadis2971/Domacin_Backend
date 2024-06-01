@@ -23,9 +23,9 @@ const data = [
       risus ante, ultrices eu ex eu, mattis rutrum leo. Vestibulum rhoncus
       semper est a mattis. Duis eleifend sollicitudin ex, ac euismod est.`,
     name: "Cookies",
-    stock: 3,
+    stock: 0,
     skuCode: "SKU-Product 1 9qOIzzJd7s6CQddVZTggSB1ZedFORS",
-    price: 17.99,
+    ProductAttributeId: 1,
   },
   {
     shortDescription: `Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce temporurna risus, a placerat mauris venenatis non. Pellentesque dapibus,massa vitae semper tincidunt, felis libero eleifend diam, ac rutrum

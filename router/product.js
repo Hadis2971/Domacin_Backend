@@ -31,9 +31,21 @@ export const Categories = {
 };
 
 router.post("/order", async (req, res) => {
-  //{ userId: 1, order: [ { id: 1, quantity: 1 } ] }
+  //{ userId: 1, order: [ { id: 1, quantity: 1, attribute, price, variationID } ] }
   const { userId, firstName, lastName, address, email, order } = req.body;
-  const { Order, User, Product, OrderProduct } = getModels();
+
+  console.log(
+    "-----------------------------------------------------------------------------------------------------------"
+  );
+
+  console.log(order);
+
+  console.log(
+    "-----------------------------------------------------------------------------------------------------------"
+  );
+
+  const { Order, User, Product, ProductAttributeVariation, OrderProduct } =
+    getModels();
 
   const responseOrder = [];
 
@@ -48,7 +60,13 @@ router.post("/order", async (req, res) => {
       order.map(async (order) => {
         const product = await Product.findByPk(order.id);
 
-        if (product.stock < order.quantity)
+        const variation = await ProductAttributeVariation.findByPk(
+          order.variationID
+        );
+
+        const stock = product.stock || variation.stock;
+
+        if (stock < order.quantity)
           Promise.reject(
             "Proizvod " +
               product.name +
@@ -85,22 +103,40 @@ router.post("/order", async (req, res) => {
     await Promise.all(
       order.map(async (order) => {
         OrderProduct.create({
-          OrderId: newOrder.id,
-          ProductId: order.id,
+          orderID: newOrder.id,
+          productID: order.id,
           quantity: order.quantity,
+          price: order.price,
+          attribute: order.attribute,
+          variation: order.variationID,
         });
 
         const product = await Product.findByPk(order.id);
+
+        const variation = await ProductAttributeVariation.findByPk(
+          order.variationID
+        );
+
         if (product) {
+          const stock = product.stock || variation.stock;
+
           responseOrder.push({
             id: product.id,
+            variationID: order.variationID,
             productName: product.name,
-            initialStock: product.stock,
-            currentStock: product.stock - order.quantity,
+            initialStock: stock,
+            currentStock: stock - order.quantity,
           });
-          product.stock = product.stock - order.quantity;
 
-          await product.save();
+          if (product.stock) {
+            product.stock = product.stock - order.quantity;
+
+            await product.save();
+          } else if (variation.stock) {
+            variation.stock = variation.stock - order.quantity;
+
+            await variation.save();
+          }
         }
       })
     );
@@ -154,7 +190,14 @@ router.post("/recension", async (req, res) => {
 });
 
 router.get("/:category", async (req, res) => {
-  const { Product, ProductImage, ProductCategory, Recension } = getModels();
+  const {
+    Product,
+    ProductImage,
+    ProductCategory,
+    ProductAttribute,
+    ProductAttributeVariation,
+    Recension,
+  } = getModels();
 
   try {
     const { category } = req.params;
@@ -175,6 +218,14 @@ router.get("/:category", async (req, res) => {
       products.map(async (product) => {
         const images = await ProductImage.findAll({
           where: { ProductId: product.id },
+        });
+
+        const attribute = await ProductAttribute.findByPk({
+          where: { id: product.ProductAttributeId },
+        });
+
+        const variations = await ProductAttributeVariation.findAll({
+          where: { ProductAttributeId: attribute.id },
         });
 
         const recensions = await Recension.findAll({
@@ -202,6 +253,7 @@ router.get("/:category", async (req, res) => {
           images: imageUrls,
           categories: categoryIds,
           recensions: recensionsFormated,
+          attribute: { name: attribute.name, variations },
         };
       })
     );
@@ -213,7 +265,14 @@ router.get("/:category", async (req, res) => {
 });
 
 router.get("/", async (req, res) => {
-  const { Product, ProductImage, ProductCategory, Recension } = getModels();
+  const {
+    Product,
+    ProductImage,
+    ProductCategory,
+    ProductAttribute,
+    ProductAttributeVariation,
+    Recension,
+  } = getModels();
 
   try {
     const products = await Product.findAll();
@@ -227,6 +286,44 @@ router.get("/", async (req, res) => {
         const categories = await ProductCategory.findAll({
           where: { ProductId: product.id },
         });
+
+        console.log(
+          "-----------------------------------------------------------------------------------------------------------"
+        );
+        console.log("product.ProductAttributeId", product.ProductAttributeId);
+        console.log(
+          "-----------------------------------------------------------------------------------------------------------"
+        );
+
+        const attribute = await ProductAttribute.findByPk(
+          product.ProductAttributeId
+        );
+
+        console.log(
+          "-----------------------------------------------------------------------------------------------------------"
+        );
+        console.log("attribute", attribute);
+        console.log(
+          "-----------------------------------------------------------------------------------------------------------"
+        );
+
+        const variations = attribute
+          ? await ProductAttributeVariation.findAll({
+              where: { ProductAttributeId: attribute.id },
+            })
+          : null;
+
+        const responseVariations = variations?.map(
+          ({ id, name, stock, price }) => ({
+            id,
+            name,
+            stock,
+            price,
+            productID: product.id,
+            variationID: id,
+            attribute: attribute?.type,
+          })
+        );
 
         const recensions = await Recension.findAll({
           where: { ProductId: product.id },
@@ -251,6 +348,10 @@ router.get("/", async (req, res) => {
           images: imageUrls,
           categories: categoryIds,
           recensions: recensionsFormated,
+          attribute: {
+            type: attribute?.type || null,
+            variations: responseVariations || null,
+          },
         };
       })
     );
